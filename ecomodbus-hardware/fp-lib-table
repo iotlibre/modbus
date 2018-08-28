@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name wemos_d1_mini)(type KiCad)(uri "$(KIPRJMOD)/library/wemos_d1_mini.pretty")(options "")(descr ""))
+  (lib (name ac-dc_VTX)(type KiCad)(uri "$(KIPRJMOD)/library/acdc.pretty")(options "")(descr ""))
+  (lib (name fuse)(type KiCad)(uri "$(KIPRJMOD)/library/fuse.pretty")(options "")(descr ""))
+)
