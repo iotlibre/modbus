@@ -274,11 +274,11 @@ String modbus_loop()
     Serial.println(modbus_state);
     if (result == node.ku8MBSuccess){
       Serial.println("The reading is CORRECT");
-      Serial.print("0x00: ");
+      Serial.print("0x00 protocolo + periferico: ");
       Serial.println(node.getResponseBuffer(0x00),HEX);
-      Serial.print("0x01: ");
+      Serial.print("0x01 velocidad (4=19200) + paridad (0=No): ");
       Serial.println(node.getResponseBuffer(0x01),HEX);
-      Serial.print("0x02: ");
+      Serial.print("0x02 longitud bits + bits stop: ");
       Serial.println(node.getResponseBuffer(0x02),HEX);
     }
     else {Serial.println("the reading is NOT CORRECT");}
