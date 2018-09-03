@@ -8,6 +8,7 @@
 
 #define MAX485_DE      D5
 #define MAX485_RE_NEG  D6
+#define LED_STATUS  D3
 #define DEVICE_DIRECTION  5
 
 /*
@@ -52,6 +53,7 @@ int number_of_tx_list = 0;
 // For secuencial execution of functions (temporal thread)
 uint32_t t_last_tx = 0;
 int modbus_state = 4;
+int system_status = 0; // to manage the led
 
 // instantiate ModbusMaster object
 ModbusMaster node;
@@ -167,6 +169,12 @@ String compose_msj_to_tx() {
   return message_to_tx_;
 }
 
+void led_system_status(){
+  if (system_status == 0) {system_status = 1;}
+  else{system_status = 0;}
+  digitalWrite(LED_STATUS, system_status);
+}
+
 // ************************************
 // *******    MODBUS_SETUP      *******
 // ************************************
@@ -177,9 +185,12 @@ void modbus_setup()
   Serial.println("_modbus_setup_");
   pinMode(MAX485_RE_NEG, OUTPUT);
   pinMode(MAX485_DE, OUTPUT);
+  pinMode(LED_STATUS, OUTPUT);
+
   // Init in receive mode
   digitalWrite(MAX485_RE_NEG, 0);
   digitalWrite(MAX485_DE, 0);
+  digitalWrite(LED_STATUS, 0);
 
   // Modbus communication runs at 115200 baud
   // Modbus slave ID 3
@@ -280,12 +291,14 @@ String modbus_loop()
       for (int i =0; i < (REGISTERS_TO_READ_1); i++) {
       // The first result go to the first position asigned in tx_values
         result_to_register(i,0);
+
       }
       for (int i = 0; i < (REGISTERS_TO_READ_1); i++) {
         Serial.print(array_parameters[i]);
         Serial.print(" ---> ");
         Serial.println(tx_values[i]);
       }
+      led_system_status();
     }
     else {
       Serial.println("the reading is NOT CORRECT");
@@ -312,6 +325,7 @@ String modbus_loop()
         Serial.print(" ---> ");
         Serial.println(tx_values[i]);
       }
+      led_system_status();
     }
     else {
       Serial.println("the reading is NOT CORRECT");
@@ -338,6 +352,7 @@ String modbus_loop()
         Serial.print(" ---> ");
         Serial.println(tx_values[i]);
       }
+      led_system_status();
     }
     else {
       Serial.println("the reading is NOT CORRECT");
@@ -365,6 +380,7 @@ String modbus_loop()
         Serial.print(" ---> ");
         Serial.println(tx_values[i]);
       }
+      led_system_status();
     }
     else {
       Serial.println("the reading is NOT CORRECT");
@@ -380,6 +396,7 @@ String modbus_loop()
     Serial.print("_compose_msj_to_tx_");
     Serial.print("    modbus_state --> ");
     Serial.println(modbus_state);
+    led_system_status();
   }
   return msj_to_tx;
 
