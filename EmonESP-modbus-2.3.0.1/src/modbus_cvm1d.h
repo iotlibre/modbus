@@ -243,7 +243,7 @@ String modbus_loop()
     node.setTransmitBuffer(0x01, 0x0001);
     // secondary voltage      1(Dec)          0001 (Hex)
     node.setTransmitBuffer(0x02, 0x0001);
-    // primary current    50(Dec) 32 Hex) 5000(Dec) 1388(Hex) 400(Dec) 190(Hex)
+    // primary current    50(Dec) 32 (Hex) 1000(Dec) 03E8(Hex) 400(Dec) 190(Hex)
     node.setTransmitBuffer(0x03, 0x03E8);
     // Sin uso
     node.setTransmitBuffer(0x04, 0x0000);
