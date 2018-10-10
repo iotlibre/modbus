@@ -6,8 +6,10 @@
 #include <ModbusMaster.h>
 
 
-#define MAX485_DE      D5
-#define MAX485_RE_NEG  D6
+#define MAX485_DE D5
+#define MAX485_RE_NEG D6
+#define LED_STATUS D3
+#define DEVICE_DIRECTION 3
 
 /*
 Information before Modbus software implementation:
@@ -31,9 +33,12 @@ PROGRAM: [=         ]  10.3% (used 432488 bytes from 4194304 bytes)
                        "Kw_III","KvarL_III","KvarC_III","Cos_III","PFIII",\
                        "Hz","V12","V23","V31"
 
-#define TRANSMISSION_LIST "Kw_1","Kvar_1",\
-                          "Kw_2","Kvar_2",\
-                          "Kw_3","Kvar_3","V23"
+
+#define TRANSMISSION_LIST "V_1","A_1","Kw_1","Kvar_1","PF_1",\
+                          "V_2","A_2","Kw_2","Kvar_2","PF_2",\
+                          "V_3","A_3","Kw_3","Kvar_3","PF_3",\
+                          "Kw_III","KvarL_III","KvarC_III","PFIII"
+
 
 // Divider factor to move to correct units
 #define FACTOR_LIST 10,1000,1,1,100,\
@@ -64,6 +69,7 @@ modbus_state variable to indicate the next functio to be executed
 */
 uint32_t t_last_tx =0;
 int modbus_state = 1;
+int system_status = 0; // to manage the led
 
 // instantiate ModbusMaster object
 ModbusMaster node;
@@ -179,6 +185,13 @@ String compose_msj_to_tx() {
   return message_to_tx_;
 }
 
+void led_system_status(){
+  if (system_status == 0) {system_status = 1;}
+  else{system_status = 0;}
+  digitalWrite(LED_STATUS, system_status);
+}
+
+
 // ************************************
 // *******    MODBUS_SETUP      *******
 // ************************************
@@ -189,13 +202,17 @@ void modbus_setup()
   Serial.println("_modbus_setup_");
   pinMode(MAX485_RE_NEG, OUTPUT);
   pinMode(MAX485_DE, OUTPUT);
+  pinMode(LED_STATUS, OUTPUT);
+
+
   // Init in receive mode
   digitalWrite(MAX485_RE_NEG, 0);
   digitalWrite(MAX485_DE, 0);
+  digitalWrite(LED_STATUS, 0);
 
   // Modbus communication runs at 115200 baud
   // Modbus slave ID 3
-  node.begin(3, Serial);
+  node.begin(DEVICE_DIRECTION, Serial);
   node.preTransmission(preTransmission);
   node.postTransmission(postTransmission);
 
@@ -226,8 +243,8 @@ String modbus_loop()
     node.setTransmitBuffer(0x01, 0x0001);
     // secondary voltage      1(Dec)          0001 (Hex)
     node.setTransmitBuffer(0x02, 0x0001);
-    // primary current    50(Dec) 32 Hex) 5000(Dec) 1388(Hex)
-    node.setTransmitBuffer(0x03, 0x0032);
+    // primary current    50(Dec) 32 Hex) 5000(Dec) 1388(Hex) 400(Dec) 190(Hex)
+    node.setTransmitBuffer(0x03, 0x03E8);
     // Sin uso
     node.setTransmitBuffer(0x04, 0x0000);
     // Cálculo de armónicos      00 Respecto el Valor Eficaz
@@ -307,6 +324,7 @@ String modbus_loop()
         Serial.print(" ---> ");
         Serial.println(tx_values[i]);
       }
+      led_system_status();
     }
     else {
       Serial.println("the reading is NOT CORRECT");
@@ -334,6 +352,7 @@ String modbus_loop()
         Serial.print(" ---> ");
         Serial.println(tx_values[i]);
       }
+      led_system_status();
     }
     else {
       Serial.println("the reading is NOT CORRECT");
@@ -346,6 +365,7 @@ String modbus_loop()
     Serial.print("_compose_msj_to_tx_");
     Serial.print("    modbus_state --> ");
     Serial.println(modbus_state);
+    led_system_status();
   }
   return msj_to_tx;
 

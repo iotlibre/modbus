@@ -31,6 +31,8 @@
 #include "input.h"
 #include "emoncms.h"
 #include "mqtt.h"
+
+/* INCLUDED for modbus working */
 #include "modbus_cvm1d.h"
 
 // -------------------------------------------------------------------
@@ -76,18 +78,12 @@ void setup() {
 // -------------------------------------------------------------------
 void loop()
 {
-  /* modbus: ota is not necessary
-  */
   // ota_loop();
   web_server_loop();
   wifi_loop();
 
-  /* modbus: serial imput can be a problem. Is is te same canal as modbus
-  */
-/*
   String input = "";
   boolean gotInput = input_get(input);
-  
 
   if (wifi_mode == WIFI_MODE_STA || wifi_mode == WIFI_MODE_AP_AND_STA)
   {
@@ -103,7 +99,7 @@ void loop()
     }
   }
 
-  */
+
 
   if (( millis() - t_last_tx) > 20000) {
     t_last_tx = millis();
